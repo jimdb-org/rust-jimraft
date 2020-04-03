@@ -52,9 +52,9 @@ mod test_util {
     }
 
     impl NodeResolver for SimpleNodeResolver {
-        fn get_node_address(&self, node_id: u64) -> RResult<&str> {
+        fn get_node_address(&self, node_id: u64) -> RResult<String> {
             let ip = self.map.get(&node_id).unwrap();
-            Ok(ip)
+            Ok(ip.to_string())
         }
     }
     impl SimpleNodeResolver {
