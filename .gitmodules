@@ -1,0 +1,3 @@
+[submodule "libraft/jimraft"]
+	path = libraft/jimraft
+	url = https://github.com/jimdb-org/jimraft

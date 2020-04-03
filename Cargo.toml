@@ -1,0 +1,15 @@
+[package]
+name = "jimraft"
+version = "0.1.0"
+authors = ["lindeqiang <lindeqiang1988@gmail.com>","jason3143 <zjj3143@hotmail.com>"]
+edition = "2018"
+
+
+[dependencies]
+libraft = { path = "libraft", version = "0.1.0" }
+libc = "0.2.9"
+log = "0.4"
+log4rs = "0.10.0"
+serde = { version = "1.0" }
+serde_derive = "1.0.104"
+serde_json = "1.0"

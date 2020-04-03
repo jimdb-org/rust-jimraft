@@ -1,0 +1,19 @@
+[package]
+name = "libraft"
+version = "0.1.0"
+authors = ["lindeqiang <lindeqiang1988@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.9"
+
+[build-dependencies]
+cmake = "0.1"
+bindgen = "0.53"
+glob = "0.3"
+
+[dev-dependencies]
+const-cstr = "0.3"
+uuid = { version = "0.8", features = ["v4"] }

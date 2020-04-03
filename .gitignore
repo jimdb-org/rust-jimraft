@@ -1,0 +1,6 @@
+/target
+/libraft/target
+/Cargo.lock
+.vscode
+/.DS_Store
+.idea/
