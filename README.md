@@ -16,7 +16,6 @@ prioritize it.
 ## Usage
 
 This binding is statically linked with a specific version of Jimraft. If you 
-want to build it yourself, make sure you've also cloned the Jimraft and 
-compression submodules:
+want to build it yourself, make sure you've also cloned the Jimraft submodules:
 
     git submodule update --init --recursive
