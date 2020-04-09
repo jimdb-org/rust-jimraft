@@ -46,11 +46,12 @@ impl LogReader {
     pub fn next_log(&self) -> RResult<(Status, u64, Vec<u8>, bool)> {
         unsafe {
             let mut index = 0;
-            let data_: *mut c_char = ::std::ptr::null_mut();
+            let mut data_: *mut libc::c_char = ::std::ptr::null_mut();
             let mut len: usize = 0;
             let mut over = false;
             let js: *mut jim_status_t =
-                raft_log_reader_next(self.inner, &mut index, data_, &mut len, &mut over);
+                raft_log_reader_next(self.inner, &mut index, &mut data_, &mut len, &mut over);
+
             let data = slice::from_raw_parts::<u8>(data_ as *mut c_uchar, len).to_vec();
             jim_free_jim_status_string(data_); // free c memory
             let status = Status::new(js);
