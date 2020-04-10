@@ -81,8 +81,10 @@ mod test {
         StateMachineCallback,
     };
     use libraft::ffi::root::*;
+    use std::fs;
 
-    // #[test]
+    #[test]
+    #[ignore]
     fn jim_status_test() {
         let c = CString::new(String::from("msg1")).unwrap();
         let c_raw: *mut c_char = c.into_raw();
@@ -124,11 +126,33 @@ mod test {
         };
     }
 
+    fn clean_storage_path(spath: &str) -> std::io::Result<()> 
+    {
+        match fs::remove_dir_all(spath){
+            _ => (),
+        };
+        println!("remove old storage path...");
+
+        let sleep_millis = time::Duration::from_millis(2500);
+        thread::sleep(sleep_millis);
+
+        fs::create_dir_all(spath)?;
+        println!("create new storage path...");
+
+        Ok(())
+    }
+
     #[test]
     fn test_raft_v2() {
         let tick_interval = 100;
         let election_tick = 10; // 5-10 times of tick_interval
         let sleep_interval = 20; // 20 times of tick_interval
+        let storage_path = "/tmp/rust-jimraft-test";
+
+        match clean_storage_path(storage_path){
+             Err(e) => { println!("clean storage_path failed: {}", e.to_string()); return; },
+             _ => ()
+        }
 
         let server_ops: RaftServerOptions = RaftServerOptions::new();
         server_ops.set_node_id(1);
@@ -164,6 +188,7 @@ mod test {
             id: 1,
         }];
         raft_ops.set_peers(peers);
+        raft_ops.set_storage_path(storage_path);
         raft_ops.set_use_memoray_storage(false);
         let raft: Raft = server.create_raft(&raft_ops).unwrap();
         println!("main:: raft created");
@@ -175,28 +200,38 @@ mod test {
         assert_eq!(raft.is_leader().unwrap(), true);
         let term = raft.get_leader_term().unwrap();
         assert_eq!(term, (1, 1));
+
         for i in 5..9 {
             // raft.propose(String::from("helllo").as_bytes(), 1, ptr::null_mut());
             raft.propose(&(i as u32).to_be_bytes(), 1, ptr::null_mut());
         }
+
         match raft.begin_read_log(1) {
             Ok(log) => {
-                println!("prepare to read log.......");
-                loop {
+                //loop {
+                for i in 5..9 { 
                     match log.next_log() {
                         Ok((status, index, data, over)) => {
                             if over {
                                 break;
                             }
-                            println!("data aaaaaaa：{:?}", data);
+                            //println!("data aaaaaaa：{:?}", data);
                             //let d = String::from_utf8(data).unwrap();
+                            
                             let mut v: [u8; 4] = Default::default();
                             v.copy_from_slice(&data);
                             let d = u32::from_be_bytes(v);
-                            println!(
+                            
+                            assert_eq!(status.code,K_OK);
+                            assert_eq!(index,i-5+2);
+                            assert_eq!(over,false);
+                            assert_eq!(d,i as u32);
+
+                            /*println!(
                                 "status: {},data:{}, index: {}, over: {}",
                                 status.code, d, index, over
                             );
+                             */
                         }
                         Err(e) => {
                             println!("error {}", e.to_string());
@@ -204,8 +239,10 @@ mod test {
                         }
                     }
                 }
+
                 let _rs = log.end_read_log();
             }
+
             Err(e) => println!("read log error.{}", e.to_string()),
         }
     }
