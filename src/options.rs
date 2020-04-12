@@ -94,6 +94,11 @@ impl RaftOptions {
         }
     }
 
+    pub fn set_storage_path(&self,spath: &str){
+         let spath_ = CString::new(String::from(spath)).unwrap().into_raw();
+         unsafe{ raft_options_set_storage_path(self.inner,spath_); }
+    }
+
     pub fn set_use_memoray_storage(&self, flag: bool) {
         unsafe { raft_options_use_memory_storage(self.inner, flag) };
     }
